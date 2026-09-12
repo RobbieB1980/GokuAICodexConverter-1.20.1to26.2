@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Lint migration skills/agents for token-waste anti-patterns and catalog drift.
 #>
@@ -14,7 +14,7 @@ if (-not $ProjectRoot) {
 }
 $skills = Join-Path $ProjectRoot '.grok\skills'
 $agents = Join-Path $ProjectRoot '.grok\agents'
-$catalogPath = 'C:\gokuai\Data\262r\catalog.json'
+$catalogPath = 'C:\GokuCodexAI\Data\262r\catalog.json'
 $failures = New-Object System.Collections.Generic.List[string]
 
 function Add-Fail([string]$m) { $failures.Add($m) | Out-Null }
@@ -52,7 +52,7 @@ if (-not (Test-Path -LiteralPath $catalogPath)) {
         Add-Fail 'Missing 262r-shard-index.md - regenerate from catalog'
     }
 
-    $root262 = 'C:\gokuai\Data\262r'
+    $root262 = 'C:\GokuCodexAI\Data\262r'
     $rows = @()
     if ($catalog.converter) { $rows += @($catalog.converter) }
     if ($catalog.shards) { $rows += @($catalog.shards) }

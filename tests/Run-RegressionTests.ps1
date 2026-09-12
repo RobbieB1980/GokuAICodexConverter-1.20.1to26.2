@@ -145,6 +145,15 @@ Assert-True ($converterText -match 'Get-PrimerMigrationRules[^\r\n]+Profile\.Sol
 Assert-True ($converterText -match 'function Invoke-MinecraftEntitySubpackageRemapPass' -and $converterText.Contains('Invoke-MinecraftEntitySubpackageRemapPass -Root $Root')) 'client-package-moves dispatcher target exists'
 Assert-True ($converterText.IndexOf("Solved-conversion named transforms") -lt $converterText.IndexOf("Solved-conversion semantic overlays")) 'transforms execute before overlays'
 Assert-True ($converterText.IndexOf("Solved-conversion semantic overlays") -gt $converterText.IndexOf("Item-model-touched")) 'overlays are the final source/resource mutation'
+Assert-True ($converterText -match 'Never borrow assets from arbitrary sibling jars') 'asset recovery cannot import unrelated sibling mods'
+Assert-True ($converterText -match 'Detected resource-only datapack; emitted lowcodefml 26\.2 wrapper') 'resource-only datapacks receive explicit 26.2 lowcode route'
+Assert-True ($converterText -match "fabric\.mod\.json','quilt\.mod\.json") 'datapack target removes competing loader descriptors'
+
+$jarConverterText = Get-Content -LiteralPath (Join-Path $repo 'Convert-JarToProject.ps1') -Raw
+Assert-True ($jarConverterText -match 'Resource-only jar: no class files were present') 'resource-only wrapper jars continue without Java sources'
+Assert-True ($jarConverterText -match 'Universal datapack wrappers carry several loader descriptors') 'resource-only universal wrappers prefer NeoForge metadata'
+$guiText = Get-Content -LiteralPath (Join-Path $repo 'src\RB.LegacyJavaConverter\MainForm.cs') -Raw
+Assert-True ($guiText -match 'repairOutputExists' -and $guiText -match 'partial conversion output was preserved') 'failed partial output offers KAT repair'
 
 $sample = 'BLOCKS.register(name, block)'
 Assert-Equal (Convert-CustomBlockRegistrationText $sample) $sample 'unmatched block helper unchanged'

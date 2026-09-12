@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Run Gradle for a NeoForge 26.2 converted project using the destination JDK (Java 25).
 

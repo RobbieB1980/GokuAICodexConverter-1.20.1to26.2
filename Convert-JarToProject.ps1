@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Decompile a finished Minecraft mod .jar into a source project folder.
 
@@ -90,17 +90,17 @@ function Get-ModHintsFromJarExtract {
     if ($neoforgeToml) {
         $hints.loader = 'neoforge'
         $text = Get-Content $neoforgeToml.FullName -Raw -ErrorAction SilentlyContinue
-        if ($text -match 'modId\s*=\s*"([^"]+)"') { $hints.mod_id = $matches[1] }
-        if ($text -match '(?m)^\s*version\s*=\s*"([^"]+)"') { $hints.mod_version = $matches[1] }
-        if ($text -match 'displayName\s*=\s*"([^"]+)"') { $hints.mod_name = $matches[1] }
-        if ($text -match 'minecraftVersion\s*=\s*"([^"]+)"') { $hints.mc_hint = $matches[1] }
+        if ($text -match 'modId\s*=\s*["'']([^"'']+)["'']') { $hints.mod_id = $matches[1] }
+        if ($text -match '(?i)\bversion\s*=\s*["'']([^"'']+)["'']') { $hints.mod_version = $matches[1] }
+        if ($text -match 'displayName\s*=\s*["'']([^"'']+)["'']') { $hints.mod_name = $matches[1] }
+        if ($text -match 'minecraftVersion\s*=\s*["'']([^"'']+)["'']') { $hints.mc_hint = $matches[1] }
     }
     elseif ($modsToml) {
         $hints.loader = 'forge/neoforge'
         $text = Get-Content $modsToml.FullName -Raw -ErrorAction SilentlyContinue
-        if ($text -match 'modId\s*=\s*"([^"]+)"') { $hints.mod_id = $matches[1] }
-        if ($text -match '(?m)^\s*version\s*=\s*"([^"]+)"') { $hints.mod_version = $matches[1] }
-        if ($text -match 'displayName\s*=\s*"([^"]+)"') { $hints.mod_name = $matches[1] }
+        if ($text -match 'modId\s*=\s*["'']([^"'']+)["'']') { $hints.mod_id = $matches[1] }
+        if ($text -match '(?i)\bversion\s*=\s*["'']([^"'']+)["'']') { $hints.mod_version = $matches[1] }
+        if ($text -match 'displayName\s*=\s*["'']([^"'']+)["'']') { $hints.mod_name = $matches[1] }
     }
     elseif (Test-Path $fabric) {
         $hints.loader = 'fabric'
@@ -251,7 +251,16 @@ try {
     Write-Ok "Extracted to temp work dir"
 
     $hints = Get-ModHintsFromJarExtract -ExtractDir $extractDir
+    $inputClassCount = @(Get-ChildItem -LiteralPath $extractDir -Recurse -Filter '*.class' -File -ErrorAction SilentlyContinue).Count
     $sourceProfile = Get-SourceProfile -Root $extractDir -VersionOverride $SourceVersion
+    if ($inputClassCount -eq 0 -and $hints.loader -match 'forge|neoforge') {
+        # Universal datapack wrappers carry several loader descriptors. Prefer
+        # the NeoForge/Forge descriptor for this converter instead of allowing
+        # a root quilt.mod.json to override it.
+        $sourceProfile.Loader = $hints.loader
+        $sourceProfile.Route = Get-MigrationRoute -SourceVersion $sourceProfile.SourceVersion -Loader $sourceProfile.Loader
+        $sourceProfile.RecommendedPasses = @(Get-RecommendedMigrationPasses -Route $sourceProfile.Route)
+    }
     if ($sourceProfile.Loader -eq 'unknown' -and $hints.loader -ne 'unknown') {
         $sourceProfile.Loader = $hints.loader
         $sourceProfile.Route = Get-MigrationRoute -SourceVersion $sourceProfile.SourceVersion -Loader $sourceProfile.Loader
@@ -309,7 +318,15 @@ try {
     }
 
     if ($javaFiles.Count -eq 0) {
-        throw "No .java files produced by decompiler. The jar may be empty or obfuscated beyond recovery."
+        $classCount = $inputClassCount
+        if ($classCount -gt 0) {
+            throw "Vineflower produced no .java files from $classCount class files. The jar may be obfuscated beyond recovery."
+        }
+        # Modrinth distributes some datapacks/resource packs as universal
+        # Forge/NeoForge/Fabric/Quilt wrapper jars with no JVM classes. These are
+        # valid resource-only inputs and must continue through the 26.2 scaffold.
+        $hints.notes.Add('Resource-only jar: no class files were present, so Java decompilation was not required.')
+        Write-Warn2 'No class files found; continuing as a resource-only mod/datapack.'
     }
 
     # Copy entire decompile tree package structure into src/main/java
@@ -342,6 +359,7 @@ try {
         'mod_authors=Unknown'
         "mod_description=Decompiled from $jarName. Requires manual cleanup."
         "source_minecraft_version=$($sourceProfile.SourceVersion)"
+        "content_type=$(if ($inputClassCount -eq 0 -and (Test-Path (Join-Path $extractDir 'data'))) { 'datapack' } else { 'java-mod' })"
         "minecraft_version=$MinecraftVersion"
         "neo_version=$NeoVersion"
         'org.gradle.jvmargs=-Xmx2G'

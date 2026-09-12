@@ -1,1 +1,1 @@
-﻿Tools/GUI hotfix 2.10.7: Fix-in-Grok uses C:\gokuai\Start-GokuAI.ps1 + C:\gokuai\projects\RB-Legacy-Java-Converter.
+Tools/GUI hotfix 2.10.7: Fix-in-Grok uses C:\GokuCodexAI\Start-GokuAI.ps1 + C:\GokuCodexAI\projects\RB-Legacy-Java-Converter.

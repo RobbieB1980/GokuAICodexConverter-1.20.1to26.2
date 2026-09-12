@@ -1,4 +1,4 @@
-﻿## 2.10.13 — 2026-09-06
+## 2.10.13 — 2026-09-06
 
 Catch-up release after GokuAI-only indexer + workspace launcher polish:
 
@@ -9,7 +9,7 @@ Catch-up release after GokuAI-only indexer + workspace launcher polish:
 
 Fix-in-Grok knowledge/MCP hardening:
 
-- Project MCP **minecraft-knowledge** uses `C:\gokuai\runtime\mia-kit\.venv` + `DataIndex\minecraft-knowledge\knowledge.db` (not broken `runtime\.venv` mcp 2.x).
+- Project MCP **minecraft-knowledge** uses `C:\GokuCodexAI\runtime\mia-kit\.venv` + `DataIndex\minecraft-knowledge\knowledge.db` (not broken `runtime\.venv` mcp 2.x).
 - `Open-GrokRepairSession.ps1` registers project MCP, refreshes `knowledge-context.json`, preserves tuned `.grok/rules`, and embeds MCP tool order in `GROK_REPAIR_PROMPT.md`.
 - Canonical agent retrieval remains knowledge.v5 + MCP; `goku-data.db` is rebuilt legacy/benchmark FTS only.
 
@@ -41,18 +41,18 @@ Easy Mob Farm (CASE-006) + dependency/knowledge hardening:
 
 Knowledge rewired fully onto **GokuAI** (no `C:\rmblocal_llm` dependency for repair/MCP):
 
-- Minecraft knowledge root: `C:\gokuai\Data`
-- Canonical agent index: `C:\gokuai\DataIndex\minecraft-knowledge\` + MCP **minecraft-knowledge**
-- MCP: `C:\gokuai\scripts\knowledge_mcp.py` via `C:\gokuai\runtime\mia-kit\.venv` (see 2.10.12)
-- Fix-in-Grok prompt primers/CASE paths now under `C:\gokuai\Data`
+- Minecraft knowledge root: `C:\GokuCodexAI\Data`
+- Canonical agent index: `C:\GokuCodexAI\DataIndex\minecraft-knowledge\` + MCP **minecraft-knowledge**
+- MCP: `C:\GokuCodexAI\scripts\knowledge_mcp.py` via `C:\GokuCodexAI\runtime\mia-kit\.venv` (see 2.10.12)
+- Fix-in-Grok prompt primers/CASE paths now under `C:\GokuCodexAI\Data`
 - Removed in-tree duplicate `knowledge.db` copy and alternate primer_changes folder under Data
 ## 2.10.7 â€” 2026-09-05
 
 Fix-in-Grok failure handoff now launches **GokuAI**:
 
-- GUI + `Open-GrokRepairSession.ps1` call `C:\gokuai\Start-GokuAI.ps1` with workspace `C:\gokuai\projects\RB-Legacy-Java-Converter`.
+- GUI + `Open-GrokRepairSession.ps1` call `C:\GokuCodexAI\Start-GokuAI.ps1` with workspace `C:\GokuCodexAI\projects\RB-Legacy-Java-Converter`.
 - Replaces the old `C:\rmblocal_llm\Start-GrokBuild.ps1` path.
-- Prompt still forces MIGRATION_EVIDENCE / primer_changes / CASE files before inventing fixes; knowledge roots remain under `C:\gokuai\Data`.
+- Prompt still forces MIGRATION_EVIDENCE / primer_changes / CASE files before inventing fixes; knowledge roots remain under `C:\GokuCodexAI\Data`.
 ## 2.10.6 â€” 2026-09-04 / 2026-09-05
 
 CASE-005 in-game bootstrap crash on NeoForge 26.2.0.72:
@@ -210,7 +210,7 @@ Full product refresh for NeoForge **26.2.0.72**.
 - Exact primer rules + Nextgen/Knocker overlays; Fusion official dep-cache.
 ## 1.5.5-mdk Ã¢â‚¬â€ 2026-08-29
 
-- Prefer station MDK `C:\gokuai\Data\Neoforge26.2generatortemplate` for Gradle wrapper bootstrap.
+- Prefer station MDK `C:\GokuCodexAI\Data\Neoforge26.2generatortemplate` for Gradle wrapper bootstrap.
 - Default `-NeoVersion` bumped to `26.2.0.72` to match that template (ModDev remains `2.0.144`).
 ## 1.5.4-solutions Ã¢â‚¬â€ 2026-08-29
 

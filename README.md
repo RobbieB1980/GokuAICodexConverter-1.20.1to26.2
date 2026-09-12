@@ -1,6 +1,6 @@
 # RMCodexMCConverter
 
-**Current release: v2.0.2**
+**Current release: v2.10.14**
 
 Windows GUI and PowerShell migration assistant for **Forge/NeoForge 1.20.1 through 26.1** → **NeoForge 26.2** ModDevGradle projects.
 
@@ -18,12 +18,12 @@ Related product: [RB-Mcreator-Version-Updater](https://github.com/RobbieB1980/RB
 
 ## Downloads (Windows)
 
-From [GitHub Releases](https://github.com/RobbieB1980/MC-Java-1.20.1-to-26.2-Converter/releases):
+From [GitHub Releases](https://github.com/RobbieB1980/GokuAICodexConverter-1.20.1to26.2/releases):
 
 | Artifact | Description |
 |----------|-------------|
-| `RB-Legacy-Java-Converter-Setup.exe` | GUI installer (self-contained, embeds portable package) |
-| `RB-Legacy-Java-Converter-Portable.zip` | Portable folder — unzip and run `RB-Legacy-Java-Converter.exe` |
+| `RMCodexMCConverter-Setup.exe` | GUI installer (self-contained, embeds portable package) |
+| `RMCodexMCConverter-Portable.zip` | Portable folder — unzip and run `RMCodexMCConverter.exe` |
 
 Build locally:
 

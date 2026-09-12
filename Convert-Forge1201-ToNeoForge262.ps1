@@ -3904,9 +3904,12 @@ function Restore-ModAssets {
 
     $jarFiles = New-Object System.Collections.Generic.List[string]
     if ($jarFromHint -and (Test-Path -LiteralPath $jarFromHint)) { $jarFiles.Add($jarFromHint) | Out-Null }
-    foreach ($dir in @($Source, (Split-Path $Source -Parent))) {
-        if (-not (Test-Path $dir)) { continue }
-        foreach ($jar in Get-ChildItem $dir -Filter '*.jar' -File -ErrorAction SilentlyContinue) {
+    # Never borrow assets from arbitrary sibling jars. A Downloads/project parent
+    # commonly contains unrelated mods, and cross-mod asset injection can still
+    # produce a successful but corrupt build. When an original jar is known it is
+    # the sole jar authority; otherwise only jars inside the source tree qualify.
+    if (-not $jarFromHint) {
+        foreach ($jar in Get-ChildItem $Source -Filter '*.jar' -File -ErrorAction SilentlyContinue) {
             if (-not $jarFiles.Contains($jar.FullName)) { $jarFiles.Add($jar.FullName) | Out-Null }
         }
     }
@@ -4096,7 +4099,7 @@ function Install-WrapperFromTowwOrMdk {
     param([string]$Root)
     # Prefer the station NeoForge 26.2 generator MDK (canonical), then legacy MDK/completed ports.
     $candidates = @(
-        'C:\gokuai\Data\Neoforge26.2generatortemplate',
+        'C:\GokuCodexAI\Data\Neoforge26.2generatortemplate',
         'F:\rob_projects\Minecraft_AI_Workstation\knowledge\neoforge\mdks\MDK-26.2-ModDevGradle',
         'F:\rob_projects\Completed\GrokBuild_MF\Completed_Projects\Java\26.2\Gradle_Workspaces\TheOneWhoWatches-26.2',
         'F:\rob_projects\Completed\GrokBuild_MF\Completed_Projects\Java\26.2\Gradle_Workspaces\Friend-26.2',
@@ -4299,6 +4302,38 @@ Write-Ok 'Wrote DEPENDENCY_REPORT.md'
 
 Write-Step 'Writing NeoForge 26.2 Gradle scaffold + resolved dependency map'
 Write-GradleScaffold -Root $OutputPath -Meta $meta -LocalLibs $LocalLibDir -DepPlan $depPlan
+$javaUnits = @(Get-ChildItem (Join-Path $OutputPath 'src\main\java') -Recurse -Filter '*.java' -File -ErrorAction SilentlyContinue).Count
+$dataRoot = Join-Path $OutputPath 'src\main\resources\data'
+$isResourceDatapack = ($javaUnits -eq 0 -and (Test-Path -LiteralPath $dataRoot -PathType Container))
+if ($isResourceDatapack) {
+    # A class-free Modrinth universal wrapper is a datapack, not a Java mod.
+    # Emit a NeoForge low-code data-pack wrapper and remove competing loader
+    # descriptors so the output has exactly one authoritative target loader.
+    $tomlPath = Join-Path $OutputPath 'src\main\templates\META-INF\neoforge.mods.toml'
+    $tomlText = [IO.File]::ReadAllText($tomlPath)
+    $tomlText = $tomlText.Replace('modLoader="javafml"', 'modLoader="lowcodefml"')
+    if ($tomlText -notmatch '(?m)^showAsDataPack\s*=') {
+        $tomlText = $tomlText.Replace('license="${mod_license}"', ('license="${mod_license}"' + "`r`n" + 'showAsDataPack=true'))
+    }
+    [IO.File]::WriteAllText($tomlPath, $tomlText, [Text.UTF8Encoding]::new($false))
+    foreach ($legacyDescriptor in @('fabric.mod.json','quilt.mod.json')) {
+        $legacyPath = Join-Path $OutputPath "src\main\resources\$legacyDescriptor"
+        if (Test-Path -LiteralPath $legacyPath) { Remove-Item -LiteralPath $legacyPath -Force }
+    }
+    $datapackReport = @"
+# Datapack conversion
+
+- Classification: resource-only datapack wrapper
+- Target: Minecraft 26.2 / NeoForge $NeoVersion
+- Loader: lowcodefml
+- Pack format: 107
+- Java source units: 0
+- Data files: $(@(Get-ChildItem $dataRoot -Recurse -File).Count)
+- Cross-loader descriptors removed: fabric.mod.json, quilt.mod.json
+"@
+    [IO.File]::WriteAllText((Join-Path $OutputPath 'DATAPACK_CONVERSION_REPORT.md'), $datapackReport.Trim() + "`r`n", [Text.UTF8Encoding]::new($false))
+    Write-Ok 'Detected resource-only datapack; emitted lowcodefml 26.2 wrapper (pack format 107)'
+}
 Write-Ok 'build.gradle / settings.gradle / gradle.properties / neoforge.mods.toml'
 
 Write-Step 'Mechanical Java rewrites (Forge -> NeoForge, Identifier, ticks, GeckoLib5)'

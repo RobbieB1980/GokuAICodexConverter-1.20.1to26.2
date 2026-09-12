@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Build portable package + Windows installer for RMCodexMCConverter.
 

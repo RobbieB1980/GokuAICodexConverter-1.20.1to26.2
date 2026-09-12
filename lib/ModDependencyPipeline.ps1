@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Read Forge 1.20.1 / NeoForge mod dependencies, resolve NeoForge 26.2 replacements,

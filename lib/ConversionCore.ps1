@@ -642,7 +642,7 @@ function Get-StationKnowledgeRoot {
     }
     foreach ($candidate in @(
             $env:RBLOCAL_LLM_KNOWLEDGE,
-            'C:\gokuai\Data'
+            'C:\GokuCodexAI\Data'
         )) {
         if ($candidate -and (Test-Path -LiteralPath $candidate)) {
             return (Resolve-Path -LiteralPath $candidate).Path
@@ -1421,10 +1421,10 @@ $failed
 
 KNOWLEDGE + MCP (mandatory):
 - Workspace: ``C:\GokuCodexAI\projects\RMCodexMCConverter``
-- Knowledge corpus: ``C:\gokuai\Data``
-- Canonical index: ``C:\gokuai\DataIndex\minecraft-knowledge`` (via ``_ACTIVE_DB.txt``)
+- Knowledge corpus: ``C:\GokuCodexAI\Data``
+- Canonical index: ``C:\GokuCodexAI\DataIndex\minecraft-knowledge`` (via ``_ACTIVE_DB.txt``)
 - Once per session call ``minecraft-knowledge__knowledge_status`` (and ``list_knowledge_sources`` if readiness is uncertain).
-- Prefer MCP tools over walking ``C:\gokuai\Data``:
+- Prefer MCP tools over walking ``C:\GokuCodexAI\Data``:
   - ``minecraft-knowledge__search_knowledge`` / ``search_solved_projects`` (category ``262r``, version ``26.2`` first)
   - ``minecraft-knowledge__build_migration_evidence(source_version, "$TargetMinecraft", query)``
   - ``minecraft-knowledge__resolve_primer_chain(source_version, "$TargetMinecraft")``
@@ -1435,20 +1435,20 @@ KNOWLEDGE + MCP (mandatory):
 
 MANDATORY ORDER - do this BEFORE inventing any fix or writing Java:
 1. Read project AGENTS.md and the newest SESSION-CONTINUE-*.md under:
-   C:\gokuai\Data\Solved_Problems\legacy-java-converter-26.2
+   C:\GokuCodexAI\Data\Solved_Problems\legacy-java-converter-26.2
 2. Read these files in the failed output (if present):
    - $failed\MIGRATION_EVIDENCE.md
    - $failed\SOURCE_PROFILE.json
    - $failed\compile-errors.log
 3. Create/update ``$failed\EVIDENCE_PACKET.md`` (template above).
 4. Search **262r first** via MCP (category ``262r``, version ``26.2``) / open one shard under:
-   C:\gokuai\Data\262r\shards
-   then converter notes under ``C:\gokuai\Data\262r\converter``.
+   C:\GokuCodexAI\Data\262r\shards
+   then converter notes under ``C:\GokuCodexAI\Data\262r\converter``.
 5. From SOURCE_PROFILE / MIGRATION_EVIDENCE, open ONLY the matching primer_changes ledger under:
-   C:\gokuai\Data\NeoForge_Primers\26.2
+   C:\GokuCodexAI\Data\NeoForge_Primers\26.2
    (primer_changes_<source>-to-26.2.md + one shard at a time). Prefer ``build_migration_evidence``. Do NOT dump every full primer.
 6. Search solved cases (CASE-003/004/005, LEARNINGS, DFU/OVY/INT/PKG) via ``search_solved_projects`` or in:
-   C:\gokuai\Data\Solved_Problems\legacy-java-converter-26.2
+   C:\GokuCodexAI\Data\Solved_Problems\legacy-java-converter-26.2
 7. Confirm APIs against exact NeoForge/Minecraft $TargetMinecraft physical sources (MCP grep/read), then fix.
 8. Prefer encoding durable remaps into tools/Convert-Forge1201-ToNeoForge262.ps1 / SolvedConversionIndex / ``262r`` over one-off patches.
 9. Success = destination-Java ``gradlew build`` producing build/libs/*.jar (not compileJava alone).

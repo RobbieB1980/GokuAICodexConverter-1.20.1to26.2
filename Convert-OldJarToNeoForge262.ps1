@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Full pipeline: finished .jar - decompile - NeoForge 26.2 scaffold.
 

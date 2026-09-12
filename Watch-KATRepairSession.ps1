@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([Parameter(Mandatory)][int]$TerminalProcessId,[Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$Workspace,[Parameter(Mandatory)][datetime]$StartedAt,[int]$MaxMinutes=8,[int]$MaxToolCalls=20,[int]$MaxBuilds=1)
 $ErrorActionPreference='SilentlyContinue'
 function Stop-Repair([string]$Reason){

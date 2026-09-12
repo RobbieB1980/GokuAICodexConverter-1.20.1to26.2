@@ -843,6 +843,9 @@ public sealed class MainForm : Form
                 && (File.Exists(Path.Combine(_lastOutput, "LEGACY_MIGRATION_REPORT.md"))
                     || File.Exists(Path.Combine(_lastOutput, "DECOMPILE_REPORT.md"))
                     || File.Exists(Path.Combine(_lastOutput, "build.gradle")));
+            var repairOutputExists = !_chkDry.Checked
+                && !string.IsNullOrWhiteSpace(_lastOutput)
+                && Directory.Exists(_lastOutput);
 
             if (code == 0)
             {
@@ -856,9 +859,20 @@ public sealed class MainForm : Form
             else
             {
                 AppendLog($"Failed with exit code {code}.", Color.Salmon);
-                if (scaffoldOk)
+                if (!repairOutputExists && !_chkDry.Checked && !string.IsNullOrWhiteSpace(_lastOutput))
                 {
-                    AppendLog("The conversion scaffold was preserved for repair.", Color.Gold);
+                    try
+                    {
+                        Directory.CreateDirectory(_lastOutput);
+                        repairOutputExists = true;
+                    }
+                    catch { /* the error below remains visible even if a repair folder cannot be created */ }
+                }
+                if (repairOutputExists)
+                {
+                    AppendLog(scaffoldOk
+                        ? "The conversion scaffold was preserved for repair."
+                        : "The partial conversion output was preserved for diagnosis and repair.", Color.Gold);
                     _btnOpenOut.Enabled = true;
                     _btnFixGrok.Enabled = true;
                     if (File.Exists(Path.Combine(_lastOutput, "compile-errors.log")))
@@ -964,9 +978,9 @@ public sealed class MainForm : Form
             "MANDATORY EVIDENCE ORDER:\n" +
             "1. Read " + evidence + ", " + profile + ", and a small excerpt of " + errors + ".\n" +
             "2. Write a bounded evidence packet to " + packet + ".\n" +
-            "3. Check hardened fixes under C:\\gokuai\\Data\\Solved_Problems and C:\\gokuai\\Data\\262r.\n" +
-            "4. Open only the matching compact primer under C:\\gokuai\\Data\\NeoForge_Primers\\26.2.\n" +
-            "5. Confirm API claims against C:\\gokuai\\Data\\Exact_Version_Sources\\NeoForge\\26.2.\n" +
+            "3. Check hardened fixes under C:\\GokuCodexAI\\Data\\Solved_Problems and C:\\GokuCodexAI\\Data\\262r.\n" +
+            "4. Open only the matching compact primer under C:\\GokuCodexAI\\Data\\NeoForge_Primers\\26.2.\n" +
+            "5. Confirm API claims against C:\\GokuCodexAI\\Data\\Exact_Version_Sources\\NeoForge\\26.2.\n" +
             "6. Make the smallest grounded repair. Do not invent imports or APIs.\n" +
             "7. Validate with destination JDK 25:\n" +
             "   powershell -NoProfile -ExecutionPolicy Bypass -File \"" + buildHelper + "\" -ProjectRoot \"" + failedOutput + "\"\n" +

@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([Parameter(Mandatory)][string]$ProjectRoot)
 $ErrorActionPreference='Stop'
 $log=Join-Path $ProjectRoot 'compile-errors.log'
